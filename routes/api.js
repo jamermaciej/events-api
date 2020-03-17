@@ -30,7 +30,7 @@ router.post('/register', (req, res) => {
     });
 });
 
-router.get('/login', (req, res) => {
+router.post('/login', (req, res) => {
     const userData = req.body;
 
     User.findOne({
