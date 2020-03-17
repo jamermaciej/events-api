@@ -7,7 +7,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use('/', api);
+app.use('/api', api);
 app.get('/server', (req, res) => {
     res.send('Hello from server');
 });
