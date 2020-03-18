@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 
 const User = require('../models/user');
@@ -39,16 +40,21 @@ router.get('/', (req, res) => {
 router.post('/register', (req, res) => {
     const userData = req.body;
     const user = new User(userData);
-    user.save((error, registeredUser) => {
-        if ( error ) {
-            console.log(error);
-        } else {
-          const payload = {
-            subject: registeredUser._id
+
+    bcrypt.hash(userData.password, 10, function(err, hash) {
+      user.password = hash;
+
+      user.save((error, registeredUser) => {
+          if ( error ) {
+              console.log(error);
+          } else {
+            const payload = {
+              subject: registeredUser._id
+            }
+            const token = jwt.sign(payload, 'secretKey')
+            res.status(200).send({token});
           }
-          const token = jwt.sign(payload, 'secretKey')
-          res.status(200).send({token});
-        }
+      });
     });
 });
 
@@ -57,13 +63,14 @@ router.post('/login', (req, res) => {
 
     User.findOne({
         email: userData.email
-    }, (error, user) => {
+    }, async (error, user) => {
         if ( error ) {
             console.log(error);
         } else {
+            const passwordsEquel = await bcrypt.compare(userData.password, user.password);
             if ( !user ) {
                 res.status(401).send('Invalid email');
-            } else if ( user.password !== userData.password ) { 
+            } else if ( !passwordsEquel ) { 
                 res.status(401).send('Invalid password');
             } else {
               const payload = {
