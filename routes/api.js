@@ -30,7 +30,7 @@ router.post('/register', (req, res) => {
             subject: registeredUser._id
           }
           const token = jwt.sign(payload, 'secretKey')
-          res.status(200).send(token);
+          res.status(200).send({token});
         }
     });
 });
@@ -53,7 +53,7 @@ router.post('/login', (req, res) => {
                 subject: user.id
               }
               const token = jwt.sign(payload, 'secretKey');
-              res.status(200).send(token);
+              res.status(200).send({token});
             }
         }
     });
