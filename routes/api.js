@@ -38,22 +38,29 @@ router.get('/', (req, res) => {
 });
 
 router.post('/register', (req, res) => {
-    const userData = req.body;
-    const user = new User(userData);
 
-    bcrypt.hash(userData.password, 10, function(err, hash) {
-      user.password = hash;
+    User.findOne({
+      email: req.body.email
+    }, (error, user) => {
+      if ( user ) return res.status(400).send('Email already exist');
 
-      user.save((error, registeredUser) => {
-          if ( error ) {
-              console.log(error);
-          } else {
-            const payload = {
-              subject: registeredUser._id
+      const userData = req.body;
+      user = new User(userData);
+  
+      bcrypt.hash(userData.password, 10, function(err, hash) {
+        user.password = hash;
+  
+        user.save((error, registeredUser) => {
+            if ( error ) {
+                console.log(error);
+            } else {
+              const payload = {
+                subject: registeredUser._id
+              }
+              const token = jwt.sign(payload, 'secretKey')
+              res.status(200).send({token});
             }
-            const token = jwt.sign(payload, 'secretKey')
-            res.status(200).send({token});
-          }
+        });
       });
     });
 });
