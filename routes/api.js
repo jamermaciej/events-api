@@ -15,6 +15,23 @@ mongooes.connect(db, err => {
     }
 });
 
+function verifyToken(req, res, next) {
+  if ( !req.headers.authorization ) {
+    return res.status(401).send('Unauthorized request');
+  }
+  const token = req.headers.authorization.split(' ')[1];
+  if ( token === 'null' ) {
+    return res.status(401).send('Unauthorized request');
+  }
+  const payload = jwt.verify(token, 'secretKey');
+  // verify decode jwt token if is valid
+  if ( !payload ) {
+    return res.status(401).send('Unauthorized request');
+  }
+  req.userId = payload.subject;
+  next();
+}
+
 router.get('/', (req, res) => {
     res.send('From API route');
 });
@@ -101,7 +118,7 @@ router.get('/events', (req, res) => {
     res.json(events);
 });
 
-router.get('/special', (req, res) => {
+router.get('/special', verifyToken, (req, res) => {
     const events = [
         {
             "_id": "1",
