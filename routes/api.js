@@ -74,10 +74,9 @@ router.post('/login', (req, res) => {
         if ( error ) {
             console.log(error);
         } else {
-            const passwordsEquel = await bcrypt.compare(userData.password, user.password);
             if ( !user ) {
-                res.status(401).send('Invalid email');
-            } else if ( !passwordsEquel ) { 
+                return res.status(401).send('Invalid email');
+            } else if ( !await bcrypt.compare(userData.password, user.password) ) { 
                 res.status(401).send('Invalid password');
             } else {
               const payload = {
