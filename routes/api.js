@@ -142,7 +142,26 @@ router.get('/events', (req, res) => {
             "date": "2012-04-23T18:25:43.511Z"
           }
     ];
-    res.json(events);
+    Event.find({}, (error, events) => {
+      if ( error ) {
+        console.log(error);
+      } else {
+        res.status(200).json(events);
+      }
+    })
+});
+
+router.delete('/events/:id', (req, res) => {
+  const id = req.params.id;
+  Event.deleteOne({
+    _id: id
+  }, (error, removedEvent) => {
+    if ( error ) {
+      console.log(error);
+    } else {
+      res.status(200).send({message: 'User successfully removed'});
+    }
+  })
 });
 
 router.get('/special', verifyToken, (req, res) => {
