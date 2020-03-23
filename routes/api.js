@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 
 const User = require('../models/user');
+const Event = require('../models/event');
 
 const mongooes = require('mongoose');
 const db = 'mongodb://admin:admin1@ds229438.mlab.com:29438/eventsdb';
@@ -87,6 +88,19 @@ router.post('/login', (req, res) => {
             }
         }
     });
+});
+
+router.post('/events', verifyToken, (req, res) => {
+  const eventData = req.body;
+  const event = new Event(eventData);
+
+  event.save((error, savedEvent) => {
+    if ( error ) {
+      console.log(error);
+    } else {
+      res.status(200).send({message: 'Event saved successfully'});
+    }
+  });
 });
 
 router.get('/events', (req, res) => {
