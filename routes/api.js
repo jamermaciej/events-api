@@ -81,10 +81,14 @@ router.post('/login', (req, res) => {
                 res.status(401).send('Invalid password');
             } else {
               const payload = {
-                subject: user.id
+                id: user.id
               }
               const token = jwt.sign(payload, 'secretKey');
-              res.status(200).send({token});
+              const userData = {
+                _id: user.id,
+                email: user.email
+              }
+              res.status(200).send({token, userData});
             }
         }
     });
@@ -151,7 +155,19 @@ router.get('/events', (req, res) => {
     })
 });
 
-router.delete('/events/:id', (req, res) => {
+router.get('/events/:id', verifyToken, (req, res) => {
+  const id = req.params.id;
+  Event.find({
+    userId: id
+  }, (error, events) => {
+    if ( error ) {
+      console.log(error);
+    } else 
+      res.status(200).json(events);
+  });
+});
+
+router.delete('/events/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   Event.deleteOne({
     _id: id
